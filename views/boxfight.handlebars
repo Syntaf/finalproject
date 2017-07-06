@@ -1,0 +1,306 @@
+<script type="text/javascript">
+    var config = {
+        apiKey: "AIzaSyAlQxdGj5-UXJduqqnm5ymTIigx4c5c6E0",
+        authDomain: "boxfight-9db65.firebaseapp.com",
+        databaseURL: "https://boxfight-9db65.firebaseio.com",
+        projectId: "boxfight-9db65",
+        storageBucket: "boxfight-9db65.appspot.com",
+        messagingSenderId: "380901492576"
+    };
+
+    firebase.initializeApp(config);
+
+
+    var database = firebase.database();
+
+    var connectionsRef = database.ref("/connections");
+    var connectedRef = database.ref(".info/connected");
+  	var usersRef = database.ref("/users");
+  	var playersRef = database.ref("/players")
+
+  	var myRef = database.ref("/joined/" + myKey);
+
+  	var gameHasStarted = false;
+
+  	var iAmPlayer;
+
+  	var beginRef = database.ref("/gamestart");
+  		beginRef.set({status:false});
+  		beginRef.onDisconnect().remove();
+
+    var positionsRef = database.ref("/positions");
+    var joinRef = database.ref("/joined");
+    	joinRef.onDisconnect().remove();
+
+    var myKey = "foobar";
+    var playerCount = 1;
+    var bruh;
+
+    connectedRef.on("value", function(snap) {
+
+        // If they are connected..
+        if (snap.val()) {
+            // Add user to the connections list.
+            var con = connectionsRef.push(true);
+
+            myKey = con.key;
+            console.log(myKey);
+            // Remove user from the connection list when they disconnect.
+            con.onDisconnect().remove();
+        }
+    });
+
+    
+
+ 
+
+    window.onload = function() {
+
+        //  Note that this html file is set to pull down Phaser 2.5.0 from the JS Delivr CDN.
+        //  Although it will work fine with this tutorial, it's almost certainly not the most current version.
+        //  Be sure to replace it with an updated version before you start experimenting with adding your own code.
+        var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
+            preload: preload,
+            create: create,
+            update: update
+        });
+
+        function preload() {
+
+            game.load.image('sky', 'assets/sky.png');
+            game.load.image('ground', 'assets/platform.png');
+            game.load.image('face', 'assets/face.png');
+            game.load.image('diamond', 'assets/diamond.png');
+            game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
+            game.load.image('boxer', 'assets/character.png');
+
+
+        };
+
+        var sprite;
+        var weapon;
+        var cursors;
+        var fireButton;
+
+
+        function create() {
+
+            game.add.sprite(0, 0, 'sky');
+
+
+            //  Creates 30 bullets, using the 'bullet' graphic
+            // weapon = game.add.weapon(30, 'diamond');
+
+            // //  The bullet will be automatically killed when it leaves the world bounds
+            // weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+
+            // //  The speed at which the bullet is fired
+            // weapon.bulletSpeed = 600;
+
+            // //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
+            // weapon.fireRate = 100;
+
+      
+
+
+            // weapon.trackSprite(sprite, 0, 0, true);
+
+            //weapon.fireAngle = Phaser.ANGLE_UP;
+
+           cursors = this.input.keyboard.createCursorKeys();
+
+           // fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+
+           players = game.add.group();
+           players.enableBody = true;
+
+            stars = game.add.group();
+            stars.enableBody = true;
+
+
+        };
+
+
+       
+
+        
+
+
+        	
+
+         var count = 0;
+		 var designation = false; 	
+
+
+       	$("#joinButton").on("click", function() {
+
+	       		joinRef.push( {
+	       		name: myKey
+	       				});	
+			
+		       	joinRef.on("value", function(snapshot) {
+
+		       	if (designation === false)	{
+
+				   var newPlayer = snapshot.val();
+				   count = snapshot.numChildren();
+				   console.log(count + " people joined");
+
+				   	iAmPlayer = count;
+				   	designation = true;
+		       		console.log("Hello! You are player " + count);
+		       		}
+
+		       	else if (designation === true) {
+
+		       		 count = snapshot.numChildren();
+
+		       	}	
+
+
+				  }); 
+
+
+		       		
+		       	$("#joinButton").remove();
+		       	
+		       
+		       	$("#joinTest").html("<h6>Joined!</h6>");
+
+       	}) ;	
+
+       	$("#startButton").on("click", function() {
+
+       		console.log("game start!");
+       		beginRef.update({status:true});
+       	})
+
+
+       	beginRef.on("value", function(snap) {
+       		if (snap.val().status === true) {
+
+       			gameHasStarted = true;
+
+       			for (var i = 0; i < count; i++) {
+       				
+       			var player = players.create(Math.floor((60 * i)), 0, 'boxer');
+                player.ID = (i + 1) ;
+                player.zombie = false;
+             	game.physics.arcade.enable(player);
+                player.body.collideWorldBounds = true;
+                console.log(player);
+
+
+
+
+                }
+
+       		}
+
+       	});
+
+       	// beginRef.on("value", function(snap) {
+
+       	// 	if(snap.val().status === false && gameHasStarted) {
+
+       	// 		location.reload();
+       	// 	}
+
+       	// });
+
+
+
+
+    
+
+        function update() {
+
+        	connectionsRef.on("value", function(snap) {
+
+		        playerCount = snap.numChildren();
+		  
+
+		    });
+
+		    var myRef = database.ref("/joined/" + myKey);
+
+     		var myConnection = database.ref("/users/" + myKey)
+
+        	$("#conref").html("<h6>" + myKey + " and count:"+ playerCount +"</h6>");
+
+        	  // var playerXY = {
+
+           //    name  : myKey,
+           //    x     : sprite.position.x,
+           //    y     : sprite.position.y
+
+           //  }
+
+           //  myConnection.set(playerXY);
+
+
+
+
+            bruh = playerCount;
+
+            players.forEach(function(sprite) {
+
+			            sprite.body.velocity.x = 0;
+			            sprite.body.velocity.y = 0;
+
+		            if (sprite.ID === iAmPlayer) {
+
+		            	var playerXY = {
+                		
+                		name: sprite.ID,
+                		x 	: sprite.position.x,
+                		y 	: sprite.position.y
+                	}
+
+                	myConnection.set(playerXY);
+
+                
+					  
+					   	if (cursors.left.isDown) {
+			                //  Move to the left
+			                sprite.body.velocity.x = -250;
+
+			            } else if (cursors.right.isDown) {
+
+			                // Move right
+			                sprite.body.velocity.x = 250;
+
+
+			            }
+
+			            if (cursors.up.isDown) {
+
+			                sprite.body.velocity.y = -250;
+			            } else if (cursors.down.isDown) {
+
+			                sprite.body.velocity.y = 250;
+
+            				}
+            		}
+
+
+			
+
+			}, this);
+
+        }
+
+   
+
+    }
+
+
+</script>
+
+<h6 id = "conref"> Hello </h6>
+
+<h6 id = "joinTest"> </h6>
+
+<button id = "joinButton">Join</button>
+
+<button id = "startButton">Start Game</button>
