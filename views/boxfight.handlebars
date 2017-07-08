@@ -15,22 +15,26 @@
 
     var connectionsRef = database.ref("/connections");
     var connectedRef = database.ref(".info/connected");
-  	var usersRef = database.ref("/users");
-  	var playersRef = database.ref("/players")
+    var usersRef = database.ref("/users");
+    var playersRef = database.ref("/players")
 
-  	var myRef = database.ref("/joined/" + myKey);
+    var myRef = database.ref("/joined/" + myKey);
 
-  	var gameHasStarted = false;
+    var gameHasStarted = false;
 
-  	var iAmPlayer;
+    var iAmPlayer;
+    var iHaveJoined = false;
 
-  	var beginRef = database.ref("/gamestart");
-  		beginRef.set({status:false});
-  		beginRef.onDisconnect().remove();
+    var beginRef = database.ref("/gamestart");
+    beginRef.set({
+        status: false
+    });
+    beginRef.onDisconnect().remove();
 
     var positionsRef = database.ref("/positions");
+
     var joinRef = database.ref("/joined");
-    	joinRef.onDisconnect().remove();
+    joinRef.onDisconnect().remove();
 
     var myKey = "foobar";
     var playerCount = 1;
@@ -50,15 +54,12 @@
         }
     });
 
-    
 
- 
+
 
     window.onload = function() {
 
-        //  Note that this html file is set to pull down Phaser 2.5.0 from the JS Delivr CDN.
-        //  Although it will work fine with this tutorial, it's almost certainly not the most current version.
-        //  Be sure to replace it with an updated version before you start experimenting with adding your own code.
+
         var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
             preload: preload,
             create: create,
@@ -75,12 +76,14 @@
             game.load.image('boxer', 'assets/character.png');
 
 
+
+
         };
 
         var sprite;
-        var weapon;
+
         var cursors;
-        var fireButton;
+
 
 
         function create() {
@@ -88,156 +91,137 @@
             game.add.sprite(0, 0, 'sky');
 
 
-            //  Creates 30 bullets, using the 'bullet' graphic
-            // weapon = game.add.weapon(30, 'diamond');
-
-            // //  The bullet will be automatically killed when it leaves the world bounds
-            // weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-
-            // //  The speed at which the bullet is fired
-            // weapon.bulletSpeed = 600;
-
-            // //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 60ms
-            // weapon.fireRate = 100;
-
-      
+            cursors = this.input.keyboard.createCursorKeys();
 
 
-            // weapon.trackSprite(sprite, 0, 0, true);
 
-            //weapon.fireAngle = Phaser.ANGLE_UP;
-
-           cursors = this.input.keyboard.createCursorKeys();
-
-           // fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
-
-           players = game.add.group();
-           players.enableBody = true;
-
-            stars = game.add.group();
-            stars.enableBody = true;
+            players = game.add.group();
+            players.enableBody = true;
 
 
         };
 
 
-       
-
-        
-
-
-        	
-
-         var count = 0;
-		 var designation = false; 	
+        var count = 0;
+        var designation = false;
 
 
-       	$("#joinButton").on("click", function() {
+        $("#joinButton").on("click", function() {
 
-	       		joinRef.push( {
-	       		name: myKey
-	       				});	
-			
-		       	joinRef.on("value", function(snapshot) {
+            joinRef.push({
+                name: myKey
+            });
 
-		       	if (designation === false)	{
+            joinRef.on("value", function(snapshot) {
 
-				   var newPlayer = snapshot.val();
-				   count = snapshot.numChildren();
-				   console.log(count + " people joined");
+                if (designation === false) {
 
-				   	iAmPlayer = count;
-				   	designation = true;
-		       		console.log("Hello! You are player " + count);
-		       		}
+                    iHaveJoined = true;
+                    var newPlayer = snapshot.val();
+                    count = snapshot.numChildren();
+                    console.log(count + " people joined");
 
-		       	else if (designation === true) {
+                    iAmPlayer = count;
+                    designation = true;
+                    console.log("Hello! You are player " + count);
+                } else if (designation === true) {
 
-		       		 count = snapshot.numChildren();
+                    count = snapshot.numChildren();
 
-		       	}	
-
-
-				  }); 
+                }
 
 
-		       		
-		       	$("#joinButton").remove();
-		       	
-		       
-		       	$("#joinTest").html("<h6>Joined!</h6>");
 
-       	}) ;	
-
-       	$("#startButton").on("click", function() {
-
-       		console.log("game start!");
-       		beginRef.update({status:true});
-       	})
+            });
 
 
-       	beginRef.on("value", function(snap) {
-       		if (snap.val().status === true) {
 
-       			gameHasStarted = true;
-
-       			for (var i = 0; i < count; i++) {
-       				
-       			var player = players.create(Math.floor((60 * i)), 0, 'boxer');
-                player.ID = (i + 1) ;
-                player.zombie = false;
-             	game.physics.arcade.enable(player);
-                player.body.collideWorldBounds = true;
-                console.log(player);
+            $("#joinButton").remove();
 
 
+            $("#joinTest").html("<h6>Joined!</h6>");
+
+        });
+
+        $("#startButton").on("click", function() {
+
+            console.log("game start!");
+            beginRef.set({
+                status: true
+            });
+        })
+
+
+        beginRef.on("value", function(snap) {
+
+
+
+            if (snap.val().status === true) {
+
+                gameHasStarted = true;
+
+                for (var i = 0; i < count; i++) {
+
+                    var player = players.create(Math.floor((60 * i)), 0, 'boxer');
+                    player.ID = (i + 1);
+                    player.zombie = false;
+                    game.physics.arcade.enable(player);
+                    player.body.collideWorldBounds = true;
+                    console.log(player);
+
+                    $("#startButton").remove();
+                    $("#joinButton").remove();
 
 
                 }
 
-       		}
+            }
 
-       	});
-
-       	// beginRef.on("value", function(snap) {
-
-       	// 	if(snap.val().status === false && gameHasStarted) {
-
-       	// 		location.reload();
-       	// 	}
-
-       	// });
+        });
 
 
+       
+        
+
+           for (var i = 1; i < (100); i++) {
+                	
+                	database.ref("/users/" + i).on("value", function(snap) {
+
+                		//console.log(snap.val().name + " position: " + snap.val().x + ", " + snap.val().y);
+
+                		players.forEach(function(player) {
+
+                		 		if (player.ID === snap.val().name) {
+
+                		 			console.log("I am " + snap.val().name);
+                		 			player.position.x = snap.val().x ; 
+                		 			player.position.y = snap.val().y ;
+
+                		 		}
+
+                		});
 
 
-    
+
+                	});
+                }
+            
 
         function update() {
 
-        	connectionsRef.on("value", function(snap) {
+            connectionsRef.on("value", function(snap) {
 
-		        playerCount = snap.numChildren();
-		  
+                playerCount = snap.numChildren();
 
-		    });
+            });
 
-		    var myRef = database.ref("/joined/" + myKey);
+            var myRef = database.ref("/joined/" + myKey);
 
-     		var myConnection = database.ref("/users/" + myKey)
+            var myConnection = database.ref("/users/" + iAmPlayer);
 
-        	$("#conref").html("<h6>" + myKey + " and count:"+ playerCount +"</h6>");
+            $("#conref").html("<h6>" + myKey + " and count:" + playerCount + "</h6>");
 
-        	  // var playerXY = {
-
-           //    name  : myKey,
-           //    x     : sprite.position.x,
-           //    y     : sprite.position.y
-
-           //  }
-
-           //  myConnection.set(playerXY);
-
+            game.physics.arcade.collide(players, players);
 
 
 
@@ -245,62 +229,79 @@
 
             players.forEach(function(sprite) {
 
-			            sprite.body.velocity.x = 0;
-			            sprite.body.velocity.y = 0;
-
-		            if (sprite.ID === iAmPlayer) {
-
-		            	var playerXY = {
-                		
-                		name: sprite.ID,
-                		x 	: sprite.position.x,
-                		y 	: sprite.position.y
-                	}
-
-                	myConnection.set(playerXY);
-
-                
-					  
-					   	if (cursors.left.isDown) {
-			                //  Move to the left
-			                sprite.body.velocity.x = -250;
-
-			            } else if (cursors.right.isDown) {
-
-			                // Move right
-			                sprite.body.velocity.x = 250;
+                sprite.body.velocity.x = 0;
+                sprite.body.velocity.y = 0;
 
 
-			            }
-
-			            if (cursors.up.isDown) {
-
-			                sprite.body.velocity.y = -250;
-			            } else if (cursors.down.isDown) {
-
-			                sprite.body.velocity.y = 250;
-
-            				}
-            		}
 
 
-			
 
-			}, this);
+
+
+                if (sprite.ID === iAmPlayer) {
+
+                    var playerXY = {
+
+                        name: sprite.ID,
+                        x: sprite.position.x,
+                        y: sprite.position.y
+                    }
+
+                    myConnection.set(playerXY);
+
+
+
+                    if (cursors.left.isDown) {
+                        //  Move to the left
+                        sprite.body.velocity.x = -350;
+
+                    } else if (cursors.right.isDown) {
+
+                        // Move right
+                        sprite.body.velocity.x = 350;
+
+
+                    }
+
+                    if (cursors.up.isDown) {
+
+                        sprite.body.velocity.y = -350;
+                    } else if (cursors.down.isDown) {
+
+                        sprite.body.velocity.y = 350;
+
+                    }
+                }
+
+              //   else {
+	             //    	positionsRef.on('value', function(snapshot) {
+	          
+	             //  player.position.x = snapshot.val().x ; 
+	             //  player.position.y = snapshot.val().y ; 
+
+	            	// });
+              //   }
+
+            }, this);
+
+           
+
 
         }
 
-   
+
 
     }
-
-
 </script>
 
-<h6 id = "conref"> Hello </h6>
+<h6 id="conref"> Hello </h6>
 
-<h6 id = "joinTest"> </h6>
+<h6 id="joinTest"> </h6>
 
-<button id = "joinButton">Join</button>
+<div id="buttonHolder">
 
-<button id = "startButton">Start Game</button>
+    <button id="joinButton">Join</button>
+
+    <button id="startButton">Start Game</button>
+
+</div>
