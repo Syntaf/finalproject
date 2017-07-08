@@ -244,6 +244,9 @@
 
                 		sprite.zombie = true;
 
+                		var zombieCon = database.ref("/users/" + sprite.ID);
+
+                		zombieCon.update({zombie : true});
                 	}
             	}
 
