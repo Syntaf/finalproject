@@ -181,7 +181,7 @@
 
 
        
-        
+
 
            for (var i = 1; i < (100); i++) {
                 	
@@ -221,9 +221,9 @@
 
             $("#conref").html("<h6>" + myKey + " and count:" + playerCount + "</h6>");
 
-            game.physics.arcade.collide(players, players);
+         //   game.physics.arcade.collide(players, players);
 
-
+            game.physics.arcade.overlap(players, players, playerTouch, null, this);
 
             bruh = playerCount;
 
@@ -231,11 +231,6 @@
 
                 sprite.body.velocity.x = 0;
                 sprite.body.velocity.y = 0;
-
-
-
-
-
 
 
                 if (sprite.ID === iAmPlayer) {
@@ -247,7 +242,7 @@
                         y: sprite.position.y
                     }
 
-                    myConnection.set(playerXY);
+                    myConnection.update(playerXY);
 
 
 
@@ -273,16 +268,17 @@
                     }
                 }
 
-              //   else {
-	             //    	positionsRef.on('value', function(snapshot) {
-	          
-	             //  player.position.x = snapshot.val().x ; 
-	             //  player.position.y = snapshot.val().y ; 
+        
 
-	            	// });
-              //   }
+         
 
             }, this);
+
+                  function playerTouch(p1, p2) {
+
+              		p1.tint = Math.random() * 0xffffff;
+
+                }
 
            
 
