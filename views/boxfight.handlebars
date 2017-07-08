@@ -88,7 +88,7 @@
 
 
         function create() {
-        	
+
             game.add.sprite(0, 0, 'sky');
             game.input.mouse.capture = true;
 
@@ -224,7 +224,7 @@
 
             $("#conref").html("<h6>" + myKey + " and count:" + playerCount + "</h6>");
 
-         //   game.physics.arcade.collide(players, players);
+          game.physics.arcade.collide(players, players);
 
             game.physics.arcade.overlap(players, players, playerTouch, null, this);
 
