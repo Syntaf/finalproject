@@ -69,6 +69,7 @@
         function preload() {
 
             game.load.image('sky', 'assets/sky.png');
+            game.load.image('zombie', 'assets/zombie.png');
             game.load.image('ground', 'assets/platform.png');
             game.load.image('face', 'assets/face.png');
             game.load.image('diamond', 'assets/diamond.png');
@@ -89,7 +90,7 @@
         function create() {
 
             game.add.sprite(0, 0, 'sky');
-
+            game.input.mouse.capture = true;
 
             cursors = this.input.keyboard.createCursorKeys();
 
@@ -165,6 +166,7 @@
                     var player = players.create(Math.floor((60 * i)), 0, 'boxer');
                     player.ID = (i + 1);
                     player.zombie = false;
+                   // game.input.onDown.addOnce(alert("hello world!"));
                     game.physics.arcade.enable(player);
                     player.body.collideWorldBounds = true;
                     console.log(player);
@@ -196,6 +198,7 @@
                 		 			console.log("I am " + snap.val().name);
                 		 			player.position.x = snap.val().x ; 
                 		 			player.position.y = snap.val().y ;
+                		 			player.zombie = snap.val().zombie;
 
                 		 		}
 
@@ -227,11 +230,30 @@
 
             bruh = playerCount;
 
+            
+
+
+ 
             players.forEach(function(sprite) {
 
                 sprite.body.velocity.x = 0;
                 sprite.body.velocity.y = 0;
 
+              	if (sprite.ID === 1) {
+                	if (game.input.activePointer.leftButton.isDown) {
+
+                		sprite.zombie = true;
+
+                	}
+            	}
+
+            	if (sprite.zombie) {
+
+            		console.log(sprite);
+                	sprite.loadTexture('zombie', 0, false);
+
+
+            	}
 
                 if (sprite.ID === iAmPlayer) {
 
@@ -239,11 +261,14 @@
 
                         name: sprite.ID,
                         x: sprite.position.x,
-                        y: sprite.position.y
+                        y: sprite.position.y,
+                        zombie: sprite.zombie
                     }
 
                     myConnection.update(playerXY);
 
+
+                    $("#zombieTest").html(sprite.zombie);
 
 
                     if (cursors.left.isDown) {
@@ -276,11 +301,16 @@
 
                   function playerTouch(p1, p2) {
 
-              		p1.tint = Math.random() * 0xffffff;
+              		//p1.tint = 0.5 * 0xffffff;
+
+
+              		if (p1.zombie || p2.zombie) {
+              			p1.zombie = true;
+              			p2.zombie = true;
+              		}
+
 
                 }
-
-           
 
 
         }
@@ -293,6 +323,10 @@
 <h6 id="conref"> Hello </h6>
 
 <h6 id="joinTest"> </h6>
+
+<h6> Am I a zombie? </h6>
+
+<h5 id = "zombieTest"> false </h5>
 
 <div id="buttonHolder">
 
