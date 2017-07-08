@@ -88,7 +88,7 @@
 
 
         function create() {
-
+        	if (!game.device.desktop){ game.input.onDown.add(gofull, this); }
             game.add.sprite(0, 0, 'sky');
             game.input.mouse.capture = true;
 
