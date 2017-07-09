@@ -247,18 +247,17 @@
                 sprite.body.velocity.x = 0;
                 sprite.body.velocity.y = 0;
 
-              	if (sprite.ID === 1) {
+             //  	if (sprite.ID === 1) {
 
-                	if (game.input.activePointer.leftButton.isDown) {
+             //    	if (game.input.activePointer.leftButton.isDown) {
 
-                		var zombieCon = database.ref("/users/1");
+             //    		var zombieCon = database.ref("/users/1");
 
+             //    		sprite.zombie = true;
 
-                		sprite.zombie = true;
-
-                		zombieCon.update({zombie : true});
-                	}
-            	}
+             //    		zombieCon.update({zombie : true});
+             //    	}
+            	// }
 
             	if (sprite.zombie) {
 
@@ -280,6 +279,17 @@
                     }
 
                     myConnection.update(playerXY);
+
+                        if (game.input.activePointer.leftButton.isDown) {
+
+                		var zombieCon = database.ref("/users/" + iAmPlayer);
+
+                		sprite.zombie = true;
+
+                		zombieCon.update({zombie : true});
+
+                		alert("values updated. WELCOME ZOMBIE!!!")
+                	}
 
 
                    
