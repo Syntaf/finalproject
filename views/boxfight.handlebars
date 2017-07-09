@@ -16,6 +16,7 @@
     var connectionsRef = database.ref("/connections");
     var connectedRef = database.ref(".info/connected");
     var usersRef = database.ref("/users");
+    	
     var playersRef = database.ref("/players")
 
     var myRef = database.ref("/joined/" + myKey);
@@ -26,19 +27,24 @@
     var iHaveJoined = false;
 
     var beginRef = database.ref("/gamestart");
-    beginRef.set({
-        status: false
-    });
-    beginRef.onDisconnect().remove();
+
+	    beginRef.set({
+	        status: false
+	    });
+	    beginRef.onDisconnect().remove();
 
     var positionsRef = database.ref("/positions");
 
     var joinRef = database.ref("/joined");
-    joinRef.onDisconnect().remove();
+   		joinRef.onDisconnect().remove();
 
     var myKey = "foobar";
     var playerCount = 1;
     var bruh;
+
+
+
+   
 
     connectedRef.on("value", function(snap) {
 
@@ -222,6 +228,8 @@
 
             var myConnection = database.ref("/users/" + iAmPlayer);
 
+
+
             $("#conref").html("<h6>" + myKey + " and count:" + playerCount + "</h6>");
 
            // game.physics.arcade.collide(players, players);
@@ -240,11 +248,13 @@
                 sprite.body.velocity.y = 0;
 
               	if (sprite.ID === 1) {
+
                 	if (game.input.activePointer.leftButton.isDown) {
 
-                		sprite.zombie = true;
+                		var zombieCon = database.ref("/users/1");
 
-                		var zombieCon = database.ref("/users/" + sprite.ID);
+
+                		sprite.zombie = true;
 
                 		zombieCon.update({zombie : true});
                 	}
@@ -252,6 +262,7 @@
 
             	if (sprite.zombie) {
 
+            		sprite.zombie = true;
             		console.log(sprite);
                 	sprite.loadTexture('zombie', 0, false);
 
@@ -304,13 +315,21 @@
 
                   function playerTouch(p1, p2) {
 
-              		//p1.tint = 0.5 * 0xffffff;
+              		
 
 
-              		if (p1.zombie || p2.zombie) {
+              		if (p1.zombie === true || p2.zombie === true) {
               			p1.zombie = true;
               			p2.zombie = true;
+              		
+              		database.ref("/users/" + p1.ID).update({zombie: true});
+              		database.ref("/users/" + p2.ID).update({zombie: true});
+
+
               		}
+
+              		
+
 
 
                 }
