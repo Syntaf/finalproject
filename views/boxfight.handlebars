@@ -16,8 +16,11 @@
     var connectionsRef = database.ref("/connections");
     var connectedRef = database.ref(".info/connected");
     var usersRef = database.ref("/users");
+
+
+    var zombieRef = database.ref("/zombie");
     	
-    var playersRef = database.ref("/players")
+    var playersRef = database.ref("/players");
 
     var myRef = database.ref("/joined/" + myKey);
 
@@ -39,8 +42,11 @@
    		joinRef.onDisconnect().remove();
 
     var myKey = "foobar";
+    var myName;
     var playerCount = 1;
     var bruh;
+
+    var currentCount;
 
 
 
@@ -119,6 +125,9 @@
                 name: myKey
             });
 
+            myName = $("#nameInput").val();
+            console.log(myName);
+
             joinRef.on("value", function(snapshot) {
 
                 if (designation === false) {
@@ -126,11 +135,18 @@
                     iHaveJoined = true;
                     var newPlayer = snapshot.val();
                     count = snapshot.numChildren();
+                    
                     console.log(count + " people joined");
 
                     iAmPlayer = count;
                     designation = true;
-                    console.log("Hello! You are player " + count);
+                    console.log("Hello! You are player " + count + " and your name is " + myName);
+
+                    database.ref("/users/" + count).update({myname: myName}) ;
+
+
+
+
                 } else if (designation === true) {
 
                     count = snapshot.numChildren();
@@ -143,7 +159,8 @@
 
 
 
-            $("#joinButton").remove();
+             $("#joinButton").remove();
+             $("#nameInput").remove();
 
              $("#joinTest").html("<h6>Joined!</h6>");
             
@@ -175,6 +192,26 @@
                    // game.input.onDown.addOnce(alert("hello world!"));
                     game.physics.arcade.enable(player);
                     player.body.collideWorldBounds = true;
+                    // player.anchor.set(0.5);
+                    // game.camera.follow(player);
+
+                    spriteText = game.add.text(0, 0, "henlo it me", { fontSize: '8px', fill: '#000' });
+
+
+                    player.addChild(spriteText); // add the text to the sprite as a child, just like a group 
+                    spriteText.x = spriteText.width * -0.5; // center the text
+                    spriteText.y = -10 // position the text 10 pixels above the origin of the sprite
+
+                    // database.ref("/users/" + (i + 1)).on("value", function(snap) {
+
+                    // scoreText = game.add.text((60 * i), 0, snap.val().myname, { fontSize: '8px', fill: '#000' });
+
+                    // console.log( "above you will see player " + i + " as " + snap.val().myname );	
+
+                    // });
+
+                    
+
                     console.log(player);
 
                     $("#startButton").remove();
@@ -247,18 +284,6 @@
                 sprite.body.velocity.x = 0;
                 sprite.body.velocity.y = 0;
 
-             //  	if (sprite.ID === 1) {
-
-             //    	if (game.input.activePointer.leftButton.isDown) {
-
-             //    		var zombieCon = database.ref("/users/1");
-
-             //    		sprite.zombie = true;
-
-             //    		zombieCon.update({zombie : true});
-             //    	}
-            	// }
-
             	if (sprite.zombie) {
 
             		sprite.zombie = true;
@@ -280,15 +305,33 @@
 
                     myConnection.update(playerXY);
 
-                        if (game.input.activePointer.leftButton.isDown) {
+                        if (game.input.activePointer.leftButton.isDown) {	
 
-                		var zombieCon = database.ref("/users/" + iAmPlayer);
+                		 joinRef.on("value", function(snap) {
 
-                		sprite.zombie = true;
+              			  currentCount = snap.numChildren();
 
-                		zombieCon.update({zombie : true});
+            				});
 
-                		alert("values updated. WELCOME ZOMBIE!!!")
+                		var RandomZombieID = Math.floor(Math.random() * currentCount) + 1  ;
+
+                		var zombieCon = database.ref("/users/" + RandomZombieID);
+
+	                		players.forEach(function(sprite) {
+
+                				if (sprite.ID === RandomZombieID) {
+
+			                		sprite.zombie = true;
+
+			                		zombieCon.update({zombie : true});
+
+			                		alert("values updated. WELCOME PLAYER" + RandomZombieID +" AS ZOMBIE!!!") ; 
+
+			                		zombieRef.set({status: true}) ;
+
+			                		}	
+
+	                			});
                 	}
 
 
@@ -347,20 +390,37 @@
 
         }
 
+        function render() {
+
+		    
+		    game.debug.spriteCoords(player, 32, 32);
+
+		    
+
+		}
+
+
 
 
     }
 </script>
 
 
-<h6 id="conref"> Hello </h6>
+
+<h6 style="{color: red}" id="conref"> Hello </h6>
 
 <h6 id="joinTest"> </h6>
+	
 
-<div id="buttonHolder">
-
+	<input id = "nameInput">  </input>
     <button id="joinButton">Join</button>
 
     <button id="startButton">Start Game</button>
 
-</div>
+
+
+<style>
+body {background-color: cadetblue;}
+h6   {color: blue;}
+
+</style>
