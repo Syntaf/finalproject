@@ -185,7 +185,7 @@
                 gameHasStarted = true;
 
                 for (var i = 0; i < count; i++) {
-
+                	var myNameTag;
                     var player = players.create(Math.floor((60 * i)), 0, 'boxer');
                     player.ID = (i + 1);
                     player.zombie = false;
@@ -195,20 +195,23 @@
                     // player.anchor.set(0.5);
                     // game.camera.follow(player);
 
-                    spriteText = game.add.text(0, 0, "henlo it me", { fontSize: '8px', fill: '#000' });
+      				database.ref("/users/" + (i + 1)).on("value", function(snap) {
+
+                    myNameTag = snap.val().myname ;	
+
+                    });
+
+
+
+
+                    spriteText = game.add.text(0, 0, myNameTag, { fontSize: '8px', fill: '#000' });
 
 
                     player.addChild(spriteText); // add the text to the sprite as a child, just like a group 
                     spriteText.x = spriteText.width * -0.5; // center the text
                     spriteText.y = -10 // position the text 10 pixels above the origin of the sprite
 
-                    // database.ref("/users/" + (i + 1)).on("value", function(snap) {
-
-                    // scoreText = game.add.text((60 * i), 0, snap.val().myname, { fontSize: '8px', fill: '#000' });
-
-                    // console.log( "above you will see player " + i + " as " + snap.val().myname );	
-
-                    // });
+             
 
                     
 
