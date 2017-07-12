@@ -43,6 +43,12 @@
 
     var myKey = "foobar";
     var myName;
+
+    var myScore = 0;
+    var thisScore;
+
+    var scoreRef;
+
     var playerCount = 1;
     var bruh;
 
@@ -106,10 +112,13 @@
 
             cursors = this.input.keyboard.createCursorKeys();
 
+            this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
 
             players = game.add.group();
             players.enableBody = true;
+
+            scoreTexts = game.add.group();
 
 
         };
@@ -128,6 +137,8 @@
             myName = $("#nameInput").val();
             console.log(myName);
 
+            myScore = 0;
+
             joinRef.on("value", function(snapshot) {
 
                 if (designation === false) {
@@ -142,7 +153,7 @@
                     designation = true;
                     console.log("Hello! You are player " + count + " and your name is " + myName);
 
-                    database.ref("/users/" + count).update({myname: myName}) ;
+                    database.ref("/users/" + count).update({myname : myName, score : myScore}) ;
 
 
 
@@ -186,7 +197,7 @@
 
                 for (var i = 0; i < count; i++) {
                 	var myNameTag;
-                    var player = players.create(Math.floor((60 * i)), 0, 'boxer');
+                    var player = players.create(Math.floor((60 * (i+1))), 30, 'boxer');
                     player.ID = (i + 1);
                     player.zombie = false;
                    // game.input.onDown.addOnce(alert("hello world!"));
@@ -195,27 +206,30 @@
                     // player.anchor.set(0.5);
                     // game.camera.follow(player);
 
-      				database.ref("/users/" + (i + 1)).on("value", function(snap) {
+	      				database.ref("/users/" + (i + 1)).on("value", function(snap) {
 
-                    myNameTag = snap.val().myname ;	
+	                    myNameTag = snap.val().myname ;	
+	                    myScore = snap.val().score ; 
 
-                    });
+	                    });
 
+                    spriteText = game.add.text(0, 0, myNameTag, { fontSize: '16px', fill: '#000' });
 
+                    spriteText.ID = (i + 1);
 
+                    scoreText  = game.add.text(0, 0, "$" + myScore, { fontSize: '20px', fill: '#1E7B1E' }, scoreTexts);
 
-                    spriteText = game.add.text(0, 0, myNameTag, { fontSize: '8px', fill: '#000' });
-
+                    scoreText.ID = (i + 1);
 
                     player.addChild(spriteText); // add the text to the sprite as a child, just like a group 
-                    spriteText.x = spriteText.width * -0.5; // center the text
-                    spriteText.y = -10 // position the text 10 pixels above the origin of the sprite
+                    spriteText.x = player.width * -0.5; // center the text
+                    spriteText.y = -20 // position the text 10 pixels above the origin of the sprite
 
-             
+                    player.addChild(scoreText);
+                    scoreText.x = player.width * -0.5;
+                    scoreText.y = 30 ;
 
-                    
-
-                    console.log(player);
+                   
 
                     $("#startButton").remove();
                     $("#joinButton").remove();
@@ -235,7 +249,6 @@
                 	
                 	database.ref("/users/" + i).on("value", function(snap) {
 
-                		//console.log(snap.val().name + " position: " + snap.val().x + ", " + snap.val().y);
 
                 		players.forEach(function(player) {
 
@@ -278,7 +291,12 @@
 
             bruh = playerCount;
 
-            
+            scoreTexts.forEach(function(text) {
+
+            	console.log(text);
+            	console.log(text.ID);
+
+            });
            
 
  
@@ -290,8 +308,13 @@
             	if (sprite.zombie) {
 
             		sprite.zombie = true;
-            		console.log(sprite);
+            		
                 	sprite.loadTexture('zombie', 0, false);
+
+
+            	}
+
+            	if (sprite) {
 
 
             	}
@@ -330,6 +353,8 @@
 
 			                		alert("values updated. WELCOME PLAYER" + RandomZombieID +" AS ZOMBIE!!!") ; 
 
+
+
 			                		zombieRef.set({status: true}) ;
 
 			                		}	
@@ -337,7 +362,39 @@
 	                			});
                 	}
 
+                	  if (this.spaceKey.isDown) {	
 
+                	  	
+                	  		var scoreRef = database.ref("/users/" + iAmPlayer);
+
+                					scoreRef.on("value", function(snap) {
+
+		              			  		thisScore = snap.val().score ; 
+
+		            					});
+
+		            				thisScore ++;
+
+		            				scoreRef.update({score: thisScore});
+
+		            				players.forEach(function(sprite) {
+
+		            				var scoreCheck = database.ref("/users/" + sprite.ID);
+
+		            					scoreCheck.on("value", function(snap) {
+
+		            						var newScore = snap.val().score ;
+
+		            						sprite.children[1].text = "$" + newScore ;
+
+		            					});
+
+		            					
+
+		            				});
+		            					
+
+                	  }
                    
 
 
