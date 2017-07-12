@@ -329,6 +329,35 @@
                         zombie: sprite.zombie
                     }
 
+                  	var scoreRef = database.ref("/users/" + iAmPlayer);
+
+                					scoreRef.on("value", function(snap) {
+
+		              			  		thisScore = snap.val().score ; 
+
+		            					});
+
+		            				thisScore ++;
+
+		            				scoreRef.update({score: thisScore});
+
+		            				players.forEach(function(sprite) {
+
+		            				var scoreCheck = database.ref("/users/" + sprite.ID);
+
+		            					scoreCheck.on("value", function(snap) {
+
+		            						var newScore = snap.val().score ;
+
+		            						sprite.children[1].text = "$" + newScore ;
+
+		            					});
+
+		            					
+
+		            				});
+
+
                     myConnection.update(playerXY);
 
                         if (game.input.activePointer.leftButton.isDown) {	
@@ -365,33 +394,7 @@
                 	  if (this.spaceKey.isDown) {	
 
                 	  	
-                	  		var scoreRef = database.ref("/users/" + iAmPlayer);
-
-                					scoreRef.on("value", function(snap) {
-
-		              			  		thisScore = snap.val().score ; 
-
-		            					});
-
-		            				thisScore ++;
-
-		            				scoreRef.update({score: thisScore});
-
-		            				players.forEach(function(sprite) {
-
-		            				var scoreCheck = database.ref("/users/" + sprite.ID);
-
-		            					scoreCheck.on("value", function(snap) {
-
-		            						var newScore = snap.val().score ;
-
-		            						sprite.children[1].text = "$" + newScore ;
-
-		            					});
-
-		            					
-
-		            				});
+                	  	
 		            					
 
                 	  }
