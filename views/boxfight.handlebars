@@ -371,39 +371,39 @@
 
                 	// this function BREAKS the zombie update...not sure why.
 
-                	 //  if (this.spaceKey.isDown || cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {	
+                	  if (this.spaceKey.isDown || cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {	
 
                 	  	
-                	 //  		var scoreRef = database.ref("/users/" + iAmPlayer);
+                	  		var scoreRef = database.ref("/users/" + iAmPlayer);
 
-                		// 			scoreRef.once("value", function(snap) {
+                					scoreRef.once("value", function(snap) {
 
-		              		// 	  		thisScore = snap.val().score ; 
+		              			  		thisScore = snap.val().score ; 
 
-		            				// 	});
+		            					});
 
-		            				// thisScore ++;
+		            				thisScore ++;
 
-		            				// scoreRef.update({score: thisScore});
+		            				scoreRef.update({score: thisScore});
 
-		            				// players.forEach(function(sprite) {
+		            				players.forEach(function(sprite) {
 
-		            				// var scoreCheck = database.ref("/users/" + sprite.ID);
+		            				var scoreCheck = database.ref("/users/" + sprite.ID);
 
-		            				// 	scoreCheck.once("value", function(snap) {
+		            					scoreCheck.once("value", function(snap) {
 
-		            				// 		var newScore = snap.val().score ;
+		            						var newScore = snap.val().score ;
 
-		            				// 		sprite.children[1].text = "$" + newScore ;
+		            						sprite.children[1].text = "$" + newScore ;
 
-		            				// 	});
+		            					});
 
 		            					
 
-		            				// });
+		            				});
 		            					
 
-                	 //  }
+                	  }
                    
 
 
