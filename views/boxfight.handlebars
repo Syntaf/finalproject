@@ -22,6 +22,8 @@
     	
     var playersRef = database.ref("/players");
 
+    var potionRef = database.ref("/potion");
+
     var myRef = database.ref("/joined/" + myKey);
 
     var gameHasStarted = false;
@@ -54,7 +56,8 @@
 
     var currentCount;
 
-
+    var thisX;
+    var thisY;
 
    
 
@@ -90,7 +93,7 @@
             game.load.image('zombie', 'assets/zombie.png');
             game.load.image('ground', 'assets/platform.png');
             game.load.image('face', 'assets/face.png');
-            game.load.image('diamond', 'assets/diamond.png');
+            game.load.image('potion', 'assets/potion.png');
             game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
             game.load.image('boxer', 'assets/character.png');
 
@@ -103,7 +106,7 @@
 
         var cursors;
 
-
+        var potion;
 
         function create() {
 
@@ -114,12 +117,15 @@
 
             this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
+          //  game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+
+          //  game.input.onDown.add(gofull, this);
+
 
             players = game.add.group();
             players.enableBody = true;
 
             scoreTexts = game.add.group();
-
 
         };
 
@@ -195,6 +201,9 @@
 
                 gameHasStarted = true;
 
+               
+
+
                 for (var i = 0; i < count; i++) {
                 	var myNameTag;
                     var player = players.create(Math.floor((60 * (i+1))), 30, 'boxer');
@@ -237,12 +246,42 @@
 
                 }
 
+                             potion = game.add.sprite(32, game.world.height - 150, 'potion');
+				             game.physics.arcade.enable(potion);
+				             potion.body.collideWorldBounds = true;
+
+				             if (iAmPlayer === 1) {
+
+				                thisX = 20 + (Math.random() -0.5) * 500;
+				                thisY = 20 + (Math.random() -0.5) * 500;
+
+				                potion.body.velocity.x = thisX;
+				                potion.body.velocity.y = thisY;
+
+				                console.log(potion.position.x)
+
+				            }
+				                
+
+				                
+
+
+
             }
 
         });
 
 
        
+           potionRef.on("value", function (snap) {
+
+        				potion.body.velocity.x = snap.val().x ; 
+        				potion.body.velocity.y = snap.val().y ;
+        				potion.position.x = snap.val().xcord;
+        				potion.position.y = snap.val().ycord;
+        				potion.alive = snap.val().alive ; 
+
+        			});
 
 
            for (var i = 1; i < (100); i++) {
@@ -271,6 +310,82 @@
 
         function update() {
 
+        	if (gameHasStarted === true && iAmPlayer === 1) {
+
+        		console.log(potion.position.x + " and " + potion.position.y + " and speed of " + thisY + " until " + potion.body.velocity.x);
+
+        		   
+                	 if(potion.position.x === 0 && thisX < 0) 
+
+                    {	thisX = (thisX * -1);
+                    	potion.body.velocity.x = thisX;
+
+           				 }
+
+                 if (potion.position.x === 764 && thisX > 0) 
+
+                    {	thisX = (thisX * -1);
+                    	potion.body.velocity.x = thisX;
+            }
+            	if (potion.position.y === 0 && thisY < 0) {
+
+            		thisY = (thisY * -1);
+                    	potion.body.velocity.y = thisY;
+            	}
+
+            	if (potion.position.y === 566 && thisY > 0) {
+
+            		thisY = (thisY * -1);
+                    	potion.body.velocity.y = thisY;
+            	}
+
+
+            	       var potionXY = {
+
+                      
+                        x: potion.body.velocity.x,
+                        y: potion.body.velocity.y,
+                        xcord: potion.position.x,
+                        ycord: potion.position.y,
+                        alive: true
+                    }
+
+
+
+                    potionRef.update(potionXY);
+
+
+        	}
+
+        	else if (gameHasStarted === true) {
+
+        				 if(potion.position.x === 0 && potion.body.velocity.x < 0) 
+
+                    {	
+                    	potion.body.velocity.x = (potion.body.velocity.x * -1);
+
+           				 }
+
+                 if (potion.position.x === 764 && potion.body.velocity.x > 0) 
+
+                    {	potion.body.velocity.x = (potion.body.velocity.x * -1);
+            }
+            	if (potion.position.y === 0 && potion.body.velocity.y < 0) {
+
+            		
+                    	potion.body.velocity.y = (potion.body.velocity.y * -1);
+            	}
+
+            	if (potion.position.y === 566 && potion.body.velocity.y > 0) {
+
+            		potion.body.velocity.y = (potion.body.velocity.y * -1);
+            	}
+
+
+
+        	}
+
+
             connectionsRef.on("value", function(snap) {
 
                 playerCount = snap.numChildren();
@@ -292,6 +407,7 @@
             bruh = playerCount;
 
           
+    
            
 
  
@@ -324,15 +440,6 @@
                         zombie: sprite.zombie
                     }
 
-                   //  var scoreCheck = database.ref("/users/" + sprite.ID);
-
-		            					// scoreCheck.on("value", function(snap) {
-
-		            					// 	var currentScore = snap.val().score ;
-
-		            					// 	sprite.children[1].text = "$" + currentScore ;
-
-		            					// });
 
 
                     myConnection.update(playerXY);
@@ -369,7 +476,7 @@
                 	}
 
 
-                	// this function BREAKS the zombie update...not sure why.
+                	// this function BREAKS the zombie update...not sure why. But it only seems to happen on separate Desktops?
 
                 	  if (this.spaceKey.isDown || cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {	
 
@@ -458,6 +565,19 @@
 
 
         }
+
+        function gofull() {
+
+		    if (game.scale.isFullScreen)
+		    {
+		        game.scale.stopFullScreen();
+		    }
+		    else
+		    {
+		        game.scale.startFullScreen(false);
+		    }
+
+		}
 
         function render() {
 
