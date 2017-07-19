@@ -97,7 +97,7 @@
             game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
             game.load.image('boxer', 'assets/character.png');
 
-
+            potionRef.set({alive: true})
 
 
         };
@@ -258,7 +258,7 @@
 				                potion.body.velocity.x = thisX;
 				                potion.body.velocity.y = thisY;
 
-				                console.log(potion.position.x)
+				              
 
 				            }
 				                
@@ -275,11 +275,16 @@
        
            potionRef.on("value", function (snap) {
 
-        				potion.body.velocity.x = snap.val().x ; 
-        				potion.body.velocity.y = snap.val().y ;
+        				// potion.body.velocity.x = snap.val().x ; 
+        				// potion.body.velocity.y = snap.val().y ;
         				potion.position.x = snap.val().xcord;
         				potion.position.y = snap.val().ycord;
         				potion.alive = snap.val().alive ; 
+
+        				if (potion.alive === false) {
+
+        					potion.kill();
+        				}
 
         			});
 
@@ -311,9 +316,6 @@
         function update() {
 
         	if (gameHasStarted === true && iAmPlayer === 1) {
-
-        		console.log(potion.position.x + " and " + potion.position.y + " and speed of " + thisY + " until " + potion.body.velocity.x);
-
         		   
                 	 if(potion.position.x === 0 && thisX < 0) 
 
@@ -342,12 +344,9 @@
 
             	       var potionXY = {
 
-                      
-                        x: potion.body.velocity.x,
-                        y: potion.body.velocity.y,
                         xcord: potion.position.x,
                         ycord: potion.position.y,
-                        alive: true
+                        
                     }
 
 
@@ -404,6 +403,8 @@
 
             game.physics.arcade.overlap(players, players, playerTouch, null, this);
 
+            game.physics.arcade.overlap(potion, players, potionTouch, null, this);
+
             bruh = playerCount;
 
           
@@ -444,39 +445,42 @@
 
                     myConnection.update(playerXY);
 
-                        if (game.input.activePointer.leftButton.isDown) {	
+                //         if (game.input.activePointer.leftButton.isDown) {	
 
-                		 joinRef.on("value", function(snap) {
+                // 		 joinRef.on("value", function(snap) {
 
-              			  currentCount = snap.numChildren();
+              		// 	  currentCount = snap.numChildren();
 
-            				});
+            				// });
 
-                		var RandomZombieID = Math.floor(Math.random() * currentCount) + 1  ;
+                // 		var RandomZombieID = Math.floor(Math.random() * currentCount) + 1  ;
 
-                		var zombieCon = database.ref("/users/" + RandomZombieID);
+                // 		var zombieCon = database.ref("/users/" + RandomZombieID);
 
-	                		players.forEach(function(sprite) {
+	               //  		players.forEach(function(sprite) {
 
-                				if (sprite.ID === RandomZombieID) {
+                // 				if (sprite.ID === RandomZombieID) {
 
-			                		sprite.zombie = true;
+			             //    		sprite.zombie = true;
 
-			                		zombieCon.update({zombie : true});
+			             //    		zombieCon.update({zombie : true});
 
-			                		alert("values updated. WELCOME PLAYER" + RandomZombieID +" AS ZOMBIE!!!") ; 
-
-
-
-			                		zombieRef.set({status: true}) ;
-
-			                		}	
-
-	                			});
-                	}
+			             //    		alert("values updated. WELCOME PLAYER" + RandomZombieID +" AS ZOMBIE!!!") ; 
 
 
-                	// this function BREAKS the zombie update...not sure why. But it only seems to happen on separate Desktops?
+
+			             //    		zombieRef.set({status: true}) ;
+
+			             //    		}	
+
+	               //  			});
+                // 	}
+
+
+
+
+
+                	
 
                 	  if (this.spaceKey.isDown || cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {	
 
@@ -558,6 +562,31 @@
               		}
 
               		
+
+
+
+                }
+
+                function potionTouch (potion, sprite) {
+
+	                console.log(  sprite.ID + " has touched the potion") ;
+
+	                potion.kill();
+
+	                potionRef.update({alive: false})
+
+	                var zombieCon = database.ref("/users/" + sprite.ID);
+
+             		sprite.zombie = true;
+
+	                		zombieCon.update({zombie : true});
+
+	                		alert("values updated. WELCOME PLAYER" + sprite.ID +" AS ZOMBIE!!!") ; 
+
+
+
+	                		zombieRef.set({status: true}) ;
+
 
 
 
