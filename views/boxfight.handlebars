@@ -1,4 +1,5 @@
-<script type="text/javascript">
+<script type="text/javascript">       
+
     var config = {
         apiKey: "AIzaSyAlQxdGj5-UXJduqqnm5ymTIigx4c5c6E0",
         authDomain: "boxfight-9db65.firebaseapp.com",
@@ -19,7 +20,7 @@
 
 
     var zombieRef = database.ref("/zombie");
-    	
+
     var playersRef = database.ref("/players");
 
     var potionRef = database.ref("/potion");
@@ -33,15 +34,15 @@
 
     var beginRef = database.ref("/gamestart");
 
-	    beginRef.set({
-	        status: false
-	    });
-	    beginRef.onDisconnect().remove();
+    beginRef.set({
+        status: false
+    });
+    beginRef.onDisconnect().remove();
 
     var positionsRef = database.ref("/positions");
 
     var joinRef = database.ref("/joined");
-   		joinRef.onDisconnect().remove();
+    joinRef.onDisconnect().remove();
 
     var myKey = "foobar";
     var myName;
@@ -59,7 +60,7 @@
     var thisX;
     var thisY;
 
-   
+    var playerList;
 
     connectedRef.on("value", function(snap) {
 
@@ -90,6 +91,7 @@
         function preload() {
 
             game.load.image('sky', 'assets/sky.png');
+            game.load.image('grass', 'assets/grass.png');
             game.load.image('zombie', 'assets/zombie.png');
             game.load.image('ground', 'assets/platform.png');
             game.load.image('face', 'assets/face.png');
@@ -97,7 +99,9 @@
             game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
             game.load.image('boxer', 'assets/character.png');
 
-            potionRef.set({alive: true})
+            potionRef.set({
+                alive: true
+            })
 
 
         };
@@ -110,16 +114,16 @@
 
         function create() {
 
-            game.add.sprite(0, 0, 'sky');
+            game.add.sprite(0, 0, 'grass');
             game.input.mouse.capture = true;
 
             cursors = this.input.keyboard.createCursorKeys();
 
             this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-          //  game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+            //  game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 
-          //  game.input.onDown.add(gofull, this);
+            //  game.input.onDown.add(gofull, this);
 
 
             players = game.add.group();
@@ -152,14 +156,17 @@
                     iHaveJoined = true;
                     var newPlayer = snapshot.val();
                     count = snapshot.numChildren();
-                    
+
                     console.log(count + " people joined");
 
                     iAmPlayer = count;
                     designation = true;
                     console.log("Hello! You are player " + count + " and your name is " + myName);
 
-                    database.ref("/users/" + count).update({myname : myName, score : myScore}) ;
+                    database.ref("/users/" + count).update({
+                        myname: myName,
+                        score: myScore
+                    });
 
 
 
@@ -176,17 +183,15 @@
 
 
 
-             $("#joinButton").remove();
-             $("#nameInput").remove();
+            $("#joinButton").remove();
+            $("#nameInput").remove();
 
-             $("#joinTest").html("<h6>Joined!</h6>");
-            
 
         });
 
         $("#startButton").on("click", function() {
 
-            console.log("game start!");
+
             beginRef.set({
                 status: true
             });
@@ -201,32 +206,41 @@
 
                 gameHasStarted = true;
 
-               
+                            console.log("game start!");
+				            $("#watermark").remove();
+				            $("#alert").remove();
+				            $("#conref").remove();
 
 
                 for (var i = 0; i < count; i++) {
-                	var myNameTag;
-                    var player = players.create(Math.floor((60 * (i+1))), 30, 'boxer');
+                    var myNameTag;
+                    var player = players.create(Math.floor((60 * (i + 1))), 30, 'boxer');
                     player.ID = (i + 1);
                     player.zombie = false;
-                   // game.input.onDown.addOnce(alert("hello world!"));
+                    // game.input.onDown.addOnce(alert("hello world!"));
                     game.physics.arcade.enable(player);
                     player.body.collideWorldBounds = true;
                     // player.anchor.set(0.5);
                     // game.camera.follow(player);
 
-	      				database.ref("/users/" + (i + 1)).on("value", function(snap) {
+                    database.ref("/users/" + (i + 1)).on("value", function(snap) {
 
-	                    myNameTag = snap.val().myname ;	
-	                    myScore = snap.val().score ; 
+                        myNameTag = snap.val().myname;
+                        myScore = snap.val().score;
 
-	                    });
+                    });
 
-                    spriteText = game.add.text(0, 0, myNameTag, { fontSize: '16px', fill: '#000' });
+                    spriteText = game.add.text(0, 0, myNameTag, {
+                        fontSize: '16px',
+                        fill: '#FFF'
+                    });
 
                     spriteText.ID = (i + 1);
 
-                    scoreText  = game.add.text(0, 0, "$" + myScore, { fontSize: '20px', fill: '#1E7B1E' }, scoreTexts);
+                    scoreText = game.add.text(0, 0, "$" + myScore, {
+                        fontSize: '20px',
+                        fill: '#33ffff'
+                    }, scoreTexts);
 
                     scoreText.ID = (i + 1);
 
@@ -236,9 +250,9 @@
 
                     player.addChild(scoreText);
                     scoreText.x = player.width * -0.5;
-                    scoreText.y = 30 ;
+                    scoreText.y = 30;
 
-                   
+
 
                     $("#startButton").remove();
                     $("#joinButton").remove();
@@ -246,24 +260,22 @@
 
                 }
 
-                             potion = game.add.sprite(32, game.world.height - 150, 'potion');
-				             game.physics.arcade.enable(potion);
-				             potion.body.collideWorldBounds = true;
+                potion = game.add.sprite(32, game.world.height - 150, 'potion');
+                game.physics.arcade.enable(potion);
+                potion.body.collideWorldBounds = true;
 
-				             if (iAmPlayer === 1) {
+                if (iAmPlayer === 1) {
 
-				                thisX = 20 + (Math.random() -0.5) * 500;
-				                thisY = 20 + (Math.random() -0.5) * 500;
+                    thisX = 20 + (Math.random() - 0.5) * 500;
+                    thisY = 20 + (Math.random() - 0.5) * 500;
 
-				                potion.body.velocity.x = thisX;
-				                potion.body.velocity.y = thisY;
+                    potion.body.velocity.x = thisX;
+                    potion.body.velocity.y = thisY;
 
-				              
 
-				            }
-				                
 
-				                
+                }
+
 
 
 
@@ -272,122 +284,135 @@
         });
 
 
-       
-           potionRef.on("value", function (snap) {
 
-        				// potion.body.velocity.x = snap.val().x ; 
-        				// potion.body.velocity.y = snap.val().y ;
-        				potion.position.x = snap.val().xcord;
-        				potion.position.y = snap.val().ycord;
-        				potion.alive = snap.val().alive ; 
+        potionRef.on("value", function(snap) {
 
-        				if (potion.alive === false) {
+            // potion.body.velocity.x = snap.val().x ; 
+            // potion.body.velocity.y = snap.val().y ;
+            potion.position.x = snap.val().xcord;
+            potion.position.y = snap.val().ycord;
+            potion.alive = snap.val().alive;
 
-        					potion.kill();
-        				}
+            if (potion.alive === false) {
 
-        			});
+                potion.kill();
+            }
 
-
-           for (var i = 1; i < (100); i++) {
-                	
-                	database.ref("/users/" + i).on("value", function(snap) {
+        });
 
 
-                		players.forEach(function(player) {
+        for (var i = 1; i < (100); i++) {
 
-                		 		if (player.ID === snap.val().name) {
-
-                		 			
-                		 			player.position.x = snap.val().x ; 
-                		 			player.position.y = snap.val().y ;
-                		 			player.zombie = snap.val().zombie;
-
-                		 		}
-
-                		});
+            database.ref("/users/" + i).on("value", function(snap) {
 
 
+                players.forEach(function(player) {
 
-                	});
-                }
-            
+                    if (player.ID === snap.val().name) {
+
+
+                        player.position.x = snap.val().x;
+                        player.position.y = snap.val().y;
+                        player.zombie = snap.val().zombie;
+
+                    }
+
+                });
+
+
+
+            });
+        }
+
 
         function update() {
 
-        	if (gameHasStarted === true && iAmPlayer === 1) {
-        		   
-                	 if(potion.position.x === 0 && thisX < 0) 
+            if (gameHasStarted === true && iAmPlayer === 1) {
 
-                    {	thisX = (thisX * -1);
-                    	potion.body.velocity.x = thisX;
+                if (potion.position.x === 0 && thisX < 0)
 
-           				 }
+                {
+                    thisX = (thisX * -1);
+                    potion.body.velocity.x = thisX;
 
-                 if (potion.position.x === 764 && thisX > 0) 
+                }
 
-                    {	thisX = (thisX * -1);
-                    	potion.body.velocity.x = thisX;
+                if (potion.position.x === 764 && thisX > 0)
+
+                {
+                    thisX = (thisX * -1);
+                    potion.body.velocity.x = thisX;
+                }
+                if (potion.position.y === 0 && thisY < 0) {
+
+                    thisY = (thisY * -1);
+                    potion.body.velocity.y = thisY;
+                }
+
+                if (potion.position.y === 566 && thisY > 0) {
+
+                    thisY = (thisY * -1);
+                    potion.body.velocity.y = thisY;
+                }
+
+
+                var potionXY = {
+
+                    xcord: potion.position.x,
+                    ycord: potion.position.y,
+
+                }
+
+
+
+                potionRef.update(potionXY);
+
+
+            } else if (gameHasStarted === true) {
+
+                if (potion.position.x === 0 && potion.body.velocity.x < 0)
+
+                {
+                    potion.body.velocity.x = (potion.body.velocity.x * -1);
+
+                }
+
+                if (potion.position.x === 764 && potion.body.velocity.x > 0)
+
+                {
+                    potion.body.velocity.x = (potion.body.velocity.x * -1);
+                }
+                if (potion.position.y === 0 && potion.body.velocity.y < 0) {
+
+
+                    potion.body.velocity.y = (potion.body.velocity.y * -1);
+                }
+
+                if (potion.position.y === 566 && potion.body.velocity.y > 0) {
+
+                    potion.body.velocity.y = (potion.body.velocity.y * -1);
+                }
+
+
+
             }
-            	if (potion.position.y === 0 && thisY < 0) {
 
-            		thisY = (thisY * -1);
-                    	potion.body.velocity.y = thisY;
+
+        
+
+            joinRef.on("value", function(snap) {
+            	playerCount = snap.numChildren();
+            	var joinedPlayers = snap.numChildren();
+            	playerList = [];
+
+            	for (var i = 1; i < (joinedPlayers + 1); i++) {
+            		database.ref("/users/" + i).on("value", function(snapshot) {
+
+            			playerList.push((" " + snapshot.val().myname)) ; 
+
+            		});
             	}
 
-            	if (potion.position.y === 566 && thisY > 0) {
-
-            		thisY = (thisY * -1);
-                    	potion.body.velocity.y = thisY;
-            	}
-
-
-            	       var potionXY = {
-
-                        xcord: potion.position.x,
-                        ycord: potion.position.y,
-                        
-                    }
-
-
-
-                    potionRef.update(potionXY);
-
-
-        	}
-
-        	else if (gameHasStarted === true) {
-
-        				 if(potion.position.x === 0 && potion.body.velocity.x < 0) 
-
-                    {	
-                    	potion.body.velocity.x = (potion.body.velocity.x * -1);
-
-           				 }
-
-                 if (potion.position.x === 764 && potion.body.velocity.x > 0) 
-
-                    {	potion.body.velocity.x = (potion.body.velocity.x * -1);
-            }
-            	if (potion.position.y === 0 && potion.body.velocity.y < 0) {
-
-            		
-                    	potion.body.velocity.y = (potion.body.velocity.y * -1);
-            	}
-
-            	if (potion.position.y === 566 && potion.body.velocity.y > 0) {
-
-            		potion.body.velocity.y = (potion.body.velocity.y * -1);
-            	}
-
-
-
-        	}
-
-
-            connectionsRef.on("value", function(snap) {
-
-                playerCount = snap.numChildren();
 
             });
 
@@ -397,39 +422,36 @@
 
 
 
-            $("#conref").html("<h6>" + myKey + " and count:" + playerCount + "</h6>");
+             $("#conref").html("<h6>Entered Players: " + playerList+ "</h6>") ;
 
-           // game.physics.arcade.collide(players, players);
+            // game.physics.arcade.collide(players, players);
 
             game.physics.arcade.overlap(players, players, playerTouch, null, this);
 
             game.physics.arcade.overlap(potion, players, potionTouch, null, this);
 
-            bruh = playerCount;
-
-          
-    
            
 
- 
+
+
+
             players.forEach(function(sprite) {
 
                 sprite.body.velocity.x = 0;
                 sprite.body.velocity.y = 0;
 
-            	if (sprite.zombie) {
+                if (sprite.zombie) {
 
-            		sprite.zombie = true;
-            		
-                	sprite.loadTexture('zombie', 0, false);
+                    sprite.zombie = true;
+
+                    sprite.loadTexture('zombie', 0, false);
+
+                }
+
+                if (sprite) {
 
 
-            	}
-
-            	if (sprite) {
-
-
-            	}
+                }
 
                 if (sprite.ID === iAmPlayer) {
 
@@ -445,177 +467,253 @@
 
                     myConnection.update(playerXY);
 
-                //         if (game.input.activePointer.leftButton.isDown) {	
 
-                // 		 joinRef.on("value", function(snap) {
-
-              		// 	  currentCount = snap.numChildren();
-
-            				// });
-
-                // 		var RandomZombieID = Math.floor(Math.random() * currentCount) + 1  ;
-
-                // 		var zombieCon = database.ref("/users/" + RandomZombieID);
-
-	               //  		players.forEach(function(sprite) {
-
-                // 				if (sprite.ID === RandomZombieID) {
-
-			             //    		sprite.zombie = true;
-
-			             //    		zombieCon.update({zombie : true});
-
-			             //    		alert("values updated. WELCOME PLAYER" + RandomZombieID +" AS ZOMBIE!!!") ; 
+                    if (this.spaceKey.isDown || cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {
 
 
+                        var scoreRef = database.ref("/users/" + iAmPlayer);
 
-			             //    		zombieRef.set({status: true}) ;
+                        scoreRef.once("value", function(snap) {
 
-			             //    		}	
+                            thisScore = snap.val().score;
 
-	               //  			});
-                // 	}
+                        });
 
+                        if (sprite.zombie === false) {
 
+                        thisScore++;
 
+                    	}
 
+                    	else if (sprite.zombie === true) {
 
-                	
+                    	
+                    		
+                    	}
 
-                	  if (this.spaceKey.isDown || cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {	
+                        scoreRef.update({
+                            score: thisScore
+                        });
 
-                	  	
-                	  		var scoreRef = database.ref("/users/" + iAmPlayer);
+                        players.forEach(function(sprite) {
 
-                					scoreRef.once("value", function(snap) {
+                            var scoreCheck = database.ref("/users/" + sprite.ID);
 
-		              			  		thisScore = snap.val().score ; 
+                            scoreCheck.once("value", function(snap) {
 
-		            					});
+                                var newScore = snap.val().score;
 
-		            				thisScore ++;
+                                sprite.children[1].text = "$" + newScore;
 
-		            				scoreRef.update({score: thisScore});
-
-		            				players.forEach(function(sprite) {
-
-		            				var scoreCheck = database.ref("/users/" + sprite.ID);
-
-		            					scoreCheck.once("value", function(snap) {
-
-		            						var newScore = snap.val().score ;
-
-		            						sprite.children[1].text = "$" + newScore ;
-
-		            					});
-
-		            					
-
-		            				});
-		            					
-
-                	  }
-                   
+                            });
 
 
-                    if (cursors.left.isDown) {
-                        //  Move to the left
-                        sprite.body.velocity.x = -350;
 
-                    } else if (cursors.right.isDown) {
-
-                        // Move right
-                        sprite.body.velocity.x = 350;
+                        });
 
 
                     }
 
-                    if (cursors.up.isDown) {
+                    if (sprite.zombie === false) {
 
-                        sprite.body.velocity.y = -350;
-                    } else if (cursors.down.isDown) {
+		                    if (cursors.left.isDown) {
+		                        //  Move to the left
+		                        sprite.body.velocity.x = -350;
 
-                        sprite.body.velocity.y = 350;
+		                    } else if (cursors.right.isDown) {
 
-                    }
+		                        // Move right
+		                        sprite.body.velocity.x = 350;
+
+
+		                    }
+
+		                    if (cursors.up.isDown) {
+
+		                        sprite.body.velocity.y = -350;
+		                    } else if (cursors.down.isDown) {
+
+		                        sprite.body.velocity.y = 350;
+
+		                    }
+
+		                }
+
+		            else if (sprite.zombie === true) {
+
+		                    if (cursors.left.isDown) {
+		                        //  Move to the left
+		                        sprite.body.velocity.x = -250;
+
+		                    } else if (cursors.right.isDown) {
+
+		                        // Move right
+		                        sprite.body.velocity.x = 250;
+
+
+		                    }
+
+		                    if (cursors.up.isDown) {
+
+		                        sprite.body.velocity.y = -250;
+		                    } else if (cursors.down.isDown) {
+
+		                        sprite.body.velocity.y = 250;
+
+		                    }
+
+		                }    
+
                 }
 
-        
 
-         
+
 
             }, this);
 
-                  function playerTouch(p1, p2) {
+            function playerTouch(p1, p2) {
 
-              		
+            	if (p1.zombie === true && p2.zombie === false) {
+
+            		var gainerCon = database.ref("/users/" + p1.ID);
+
+            		gainerCon.once("value", function(snap) {
+
+                	var checkThisScore = snap.val().score ;
+
+                	checkThisScore = checkThisScore + 4000 ;
+
+                	gainerCon.update({
+                		score: checkThisScore
+                	});
+
+                });
+
+            		 p1.zombie = true;
+                    p2.zombie = true;
+
+                        database.ref("/users/" + p1.ID).update({
+                        zombie: true
+                    });
+                    database.ref("/users/" + p2.ID).update({
+                        zombie: true
+                    });
 
 
-              		if (p1.zombie === true || p2.zombie === true) {
-              			p1.zombie = true;
-              			p2.zombie = true;
-              		
-              		database.ref("/users/" + p1.ID).update({zombie: true});
-              		database.ref("/users/" + p2.ID).update({zombie: true});
+            	}
+
+            	else if (p1.zombie === false && p2.zombie === true) {
+
+            		var gainerCon = database.ref("/users/" + p2.ID);
+
+            		gainerCon.once("value", function(snap) {
+
+                	var checkThisScore = snap.val().score ;
+
+                	checkThisScore = checkThisScore + 4000 ;
+
+                	gainerCon.update({
+                		score: checkThisScore
+                	});
+
+                });
+
+            		 p1.zombie = true;
+                    p2.zombie = true;
+
+                        database.ref("/users/" + p1.ID).update({
+                        zombie: true
+                    });
+                    database.ref("/users/" + p2.ID).update({
+                        zombie: true
+                    });
 
 
-              		}
+            	}
 
-              		
 
+
+                if (p1.zombie === true || p2.zombie === true) {
+                    p1.zombie = true;
+                    p2.zombie = true;
+
+                    database.ref("/users/" + p1.ID).update({
+                        zombie: true
+                    });
+                    database.ref("/users/" + p2.ID).update({
+                        zombie: true
+                    });
 
 
                 }
 
-                function potionTouch (potion, sprite) {
-
-	                console.log(  sprite.ID + " has touched the potion") ;
-
-	                potion.kill();
-
-	                potionRef.update({alive: false})
-
-	                var zombieCon = database.ref("/users/" + sprite.ID);
-
-             		sprite.zombie = true;
-
-	                		zombieCon.update({zombie : true});
-
-	                		alert("values updated. WELCOME PLAYER" + sprite.ID +" AS ZOMBIE!!!") ; 
 
 
 
-	                		zombieRef.set({status: true}) ;
+            }
+
+            function potionTouch(potion, sprite) {
+
+                console.log(sprite.ID + " has touched the potion");
+
+
+
+                potion.kill();
+
+                potionRef.update({
+                    alive: false
+                })
+
+                var zombieCon = database.ref("/users/" + sprite.ID);
+
+                sprite.zombie = true;
+
+                zombieCon.update({
+                    zombie: true
+                });
+
+                zombieCon.once("value", function(snap) {
+
+                	var checkScore = snap.val().score ;
+
+                	checkScore = checkScore + 10000 ;
+
+                	zombieCon.update({
+                		score: checkScore
+                	});
+
+                });
+
+                zombieRef.set({
+                    status: true
+                });
 
 
 
 
-                }
+            }
 
 
         }
 
         function gofull() {
 
-		    if (game.scale.isFullScreen)
-		    {
-		        game.scale.stopFullScreen();
-		    }
-		    else
-		    {
-		        game.scale.startFullScreen(false);
-		    }
+            if (game.scale.isFullScreen) {
+                game.scale.stopFullScreen();
+            } else {
+                game.scale.startFullScreen(false);
+            }
 
-		}
+        }
 
         function render() {
 
-		    
-		    game.debug.spriteCoords(player, 32, 32);
 
-		    
+            game.debug.spriteCoords(player, 32, 32);
 
-		}
+
+
+        }
 
 
 
@@ -623,22 +721,88 @@
     }
 </script>
 
+<h1 id="alert">Z O M B O X </h1>
+<h2 id = "watermark">by juan debiedma </h2>
 
+<h6 id="conref"> </h6>
 
-<h6 style="{color: red}" id="conref"> Hello </h6>
+<div id = "thebuttons">
 
-<h6 id="joinTest"> </h6>
-	
+<input id="nameInput"> </input>
+<button id="joinButton">Join</button>
 
-	<input id = "nameInput">  </input>
-    <button id="joinButton">Join</button>
+<button id="startButton">Start Game</button>
 
-    <button id="startButton">Start Game</button>
-
+</div>
 
 
 <style>
-body {background-color: cadetblue;}
-h6   {color: blue;}
+    h1 {
+        font-family: 'VT323', cursive;
+        font-size: 50px;
+        margin-top: -10px;
+        padding: 0px;
+        height: 64px;
+    }
 
+    h2 {
+    	
+    	font-size: 15px;
+    	line-height: 2.66667rem;
+    	height: 30px;
+    }
+
+    body {
+        background-color: cadetblue;
+    }
+
+    h6 {
+        color: blue;
+        font-size: 15px;
+        font-weight: bold;
+        text-align: center
+   
+    }
+
+    #thebuttons {
+
+    	margin-left: 30%;
+    	margin-top: 35px;
+    }
+
+    canvas {
+        margin-left: 20%;
+		
+    }
+
+
+    #alert {
+        color: #39f !important;
+    }
+
+    @-webkit-keyframes colours {
+        0% {
+            color: red;
+        }
+        25% {
+            color: cyan;
+        }
+        50% {
+            color: green;
+        }
+        75% {
+            color: yellow;
+        }
+        100% {
+            color: red;
+        }
+    }
+
+    #alert {
+        -webkit-animation-direction: normal;
+        -webkit-animation-duration: 10s;
+        -webkit-animation-iteration-count: infinite;
+        -webkit-animation-name: colours;
+        -webkit-animation-timing-function: ease;
+    }
 </style>
