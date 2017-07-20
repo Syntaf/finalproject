@@ -98,6 +98,7 @@
             game.load.image('potion', 'assets/potion.png');
             game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
             game.load.image('boxer', 'assets/character.png');
+            game.load.image('bigzombie', 'assets/bigzombie.png')
 
             potionRef.set({
                 alive: true
@@ -444,7 +445,9 @@
 
                     sprite.zombie = true;
 
-                    sprite.loadTexture('zombie', 0, false);
+                    sprite.loadTexture('bigzombie', 0, false);
+
+                     sprite.children[1].y = 45;
 
                 }
 
