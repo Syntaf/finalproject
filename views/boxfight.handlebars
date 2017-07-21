@@ -651,6 +651,7 @@
             	if (p1.zombie === true && p2.zombie === false) {
 
             		var gainerCon = database.ref("/users/" + p1.ID);
+            		var loserCon = database.ref("/users/" + p2.ID);
 
             		gainerCon.once("value", function(snap) {
 
@@ -662,7 +663,27 @@
                 		score: checkThisScore
                 	});
 
-                });
+
+
+                	});
+
+
+            			                loserCon.once("value", function(snap) {
+
+					                	var checkThisScore = snap.val().score ;
+
+					                	checkThisScore = (checkThisScore - 500) ;
+
+					                	loserCon.update({
+					                		score: checkThisScore
+					                	});
+
+					                	});
+
+
+
+
+
 
             		 p1.zombie = true;
                     p2.zombie = true;
@@ -680,6 +701,7 @@
             	else if (p1.zombie === false && p2.zombie === true) {
 
             		var gainerCon = database.ref("/users/" + p2.ID);
+            		var loserCon = database.ref("/users/" + p1.ID);
 
             		gainerCon.once("value", function(snap) {
 
@@ -691,7 +713,23 @@
                 		score: checkThisScore
                 	});
 
-                });
+			                
+
+               		});
+
+               			loserCon.once("value", function(snap) {
+
+			                	var checkThisScore = snap.val().score ;
+
+			                	checkThisScore = (checkThisScore - 500) ;
+
+			                	loserCon.update({
+			                		score: checkThisScore
+			                	});
+
+			                	});
+
+            		
 
             		 p1.zombie = true;
                     p2.zombie = true;
