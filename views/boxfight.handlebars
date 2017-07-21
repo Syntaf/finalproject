@@ -17,6 +17,7 @@
     var connectionsRef = database.ref("/connections");
     var connectedRef = database.ref(".info/connected");
     var usersRef = database.ref("/users");
+    usersRef.onDisconnect().remove();
 
 
     var zombieRef = database.ref("/zombie");
@@ -24,6 +25,7 @@
     var playersRef = database.ref("/players");
 
     var potionRef = database.ref("/potion");
+    var reviveRef = database.ref("/revive");
 
     var myRef = database.ref("/joined/" + myKey);
 
@@ -60,7 +62,18 @@
     var thisX;
     var thisY;
 
+    var aid;
+
+    var potion;
+
+    var numZombies;
+
+    var allZombies = false;
+ 
+
     var playerList;
+
+    reviveRef.set({revive:false});
 
     connectedRef.on("value", function(snap) {
 
@@ -98,7 +111,9 @@
             game.load.image('potion', 'assets/potion.png');
             game.load.spritesheet('dude', 'assets/dude.png', 32, 48);
             game.load.image('boxer', 'assets/character.png');
-            game.load.image('bigzombie', 'assets/bigzombie.png')
+            game.load.image('bigzombie', 'assets/bigzombie.png');
+            game.load.image('instructions', 'assets/rules.png');
+            game.load.image('healer', 'assets/healer.png');
 
             potionRef.set({
                 alive: true
@@ -113,19 +128,17 @@
 
         var potion;
 
+        var rules;
+
         function create() {
 
             game.add.sprite(0, 0, 'grass');
+            rules =  game.add.sprite(0, 0, 'instructions');
             game.input.mouse.capture = true;
 
             cursors = this.input.keyboard.createCursorKeys();
 
             this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
-            //  game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
-
-            //  game.input.onDown.add(gofull, this);
-
 
             players = game.add.group();
             players.enableBody = true;
@@ -144,6 +157,10 @@
             joinRef.push({
                 name: myKey
             });
+
+
+
+            rules.kill();
 
             myName = $("#nameInput").val();
             console.log(myName);
@@ -299,7 +316,81 @@
                 potion.kill();
             }
 
+            // if (potion.alive === true) {
+
+            // 	potion.revive();
+            // }
+
+
+
         });
+
+        reviveRef.on("value", function(snap) {
+
+        	// if (snap.val().revive === true) {
+
+        	// 	aid = game.add.sprite(32, game.world.height - 150, 'healer');
+         //        game.physics.arcade.enable(aid);
+         //        aid.body.collideWorldBounds = true;
+
+         //        if (iAmPlayer === 1) {	
+
+         //            thisX = 20 + (Math.random() - 0.5) * 500;
+         //            thisY = 20 + (Math.random() - 0.5) * 500;
+
+         //            aid.body.velocity.x = thisX;
+         //            aid.body.velocity.y = thisY;
+
+         //            aid.alive = true;
+
+         //        }
+        	// }
+
+        	//////////////////
+
+        	//  	if (snap.val().revive === true) {
+
+        	// 	potion = game.add.sprite(32, game.world.height - 150, 'potion');
+         //        game.physics.arcade.enable(potion);
+         //        potion.body.collideWorldBounds = true;
+
+         //        if (iAmPlayer === 1) {	
+
+         //            thisX = 20 + (Math.random() - 0.5) * 500;
+         //            thisY = 20 + (Math.random() - 0.5) * 500;
+
+         //            potion.body.velocity.x = thisX;
+         //            potion.body.velocity.y = thisY;
+
+         //            potion.alive = true;
+
+         //        }
+        	// }
+
+        	////////////////////
+
+        	if (snap.val().revive === true) {
+        		alert('bring potion back to life');
+        		potion.alive = true;
+        		potionRef.update({alive:true});
+        		potion.revive();
+
+        		  if (iAmPlayer === 1) {
+
+                    thisX = 20 + (Math.random() - 0.5) * 500;
+                    thisY = 20 + (Math.random() - 0.5) * 500;
+
+                    potion.body.velocity.x = thisX;
+                    potion.body.velocity.y = thisY;
+
+
+
+                }
+        	}
+
+
+        });
+
 
 
         for (var i = 1; i < (100); i++) {
@@ -471,6 +562,8 @@
                     myConnection.update(playerXY);
 
 
+
+
                     if (this.spaceKey.isDown || cursors.left.isDown || cursors.right.isDown || cursors.up.isDown || cursors.down.isDown) {
 
 
@@ -570,8 +663,6 @@
                 }
 
 
-
-
             }, this);
 
             function playerTouch(p1, p2) {
@@ -651,45 +742,74 @@
                 }
 
 
+                joinRef.once("value", function (snap) {
+
+                	numZombies = snap.numChildren();
+                	
+                	var pandemicRef =  database.ref("/users/").orderByChild("zombie").equalTo(true);
+
+                	var pandemicCheck;
+
+                	pandemicRef.once("value", function(response) {
+
+					  pandemicCheck = response.numChildren();
+
+					  if (allZombies === false) {
+
+					 	 console.log(pandemicCheck);
+
+						 	 if (pandemicCheck === numZombies) {
+						 	 	reviveRef.update({revive:true})
+						 	 	allZombies = true;
+						 	 }
+
+						}
+
+					});
+
+
+                });
 
 
             }
 
             function potionTouch(potion, sprite) {
 
-                console.log(sprite.ID + " has touched the potion");
+            	
+
+	                console.log(sprite.ID + " has touched the potion");
 
 
 
-                potion.kill();
+	                potion.kill();
 
-                potionRef.update({
-                    alive: false
-                })
+	                potionRef.update({
+	                    alive: false
+	                })
 
-                var zombieCon = database.ref("/users/" + sprite.ID);
+	                var zombieCon = database.ref("/users/" + sprite.ID);
 
-                sprite.zombie = true;
+	                sprite.zombie = true;
 
-                zombieCon.update({
-                    zombie: true
-                });
+	                zombieCon.update({
+	                    zombie: true
+	                });
 
-                zombieCon.once("value", function(snap) {
+	                zombieCon.once("value", function(snap) {
 
-                	var checkScore = snap.val().score ;
+	                	var checkScore = snap.val().score ;
 
-                	checkScore = checkScore + 10000 ;
+	                	checkScore = checkScore + 10000 ;
 
-                	zombieCon.update({
-                		score: checkScore
-                	});
+	                	zombieCon.update({
+	                		score: checkScore
+	                	});
 
-                });
+	                });
 
-                zombieRef.set({
-                    status: true
-                });
+	                zombieRef.set({
+	                    status: true
+	                });
 
 
 
