@@ -69,6 +69,8 @@
     var numZombies;
 
     var allZombies = false;
+
+    var pandemicCheck;
  
 
     var playerList;
@@ -281,6 +283,7 @@
                 potion = game.add.sprite(32, game.world.height - 150, 'potion');
                 game.physics.arcade.enable(potion);
                 potion.body.collideWorldBounds = true;
+                potion.healthy = false;
 
                 if (iAmPlayer === 1) {
 
@@ -327,53 +330,15 @@
 
         reviveRef.on("value", function(snap) {
 
-        	// if (snap.val().revive === true) {
 
-        	// 	aid = game.add.sprite(32, game.world.height - 150, 'healer');
-         //        game.physics.arcade.enable(aid);
-         //        aid.body.collideWorldBounds = true;
-
-         //        if (iAmPlayer === 1) {	
-
-         //            thisX = 20 + (Math.random() - 0.5) * 500;
-         //            thisY = 20 + (Math.random() - 0.5) * 500;
-
-         //            aid.body.velocity.x = thisX;
-         //            aid.body.velocity.y = thisY;
-
-         //            aid.alive = true;
-
-         //        }
-        	// }
-
-        	//////////////////
-
-        	//  	if (snap.val().revive === true) {
-
-        	// 	potion = game.add.sprite(32, game.world.height - 150, 'potion');
-         //        game.physics.arcade.enable(potion);
-         //        potion.body.collideWorldBounds = true;
-
-         //        if (iAmPlayer === 1) {	
-
-         //            thisX = 20 + (Math.random() - 0.5) * 500;
-         //            thisY = 20 + (Math.random() - 0.5) * 500;
-
-         //            potion.body.velocity.x = thisX;
-         //            potion.body.velocity.y = thisY;
-
-         //            potion.alive = true;
-
-         //        }
-        	// }
-
-        	////////////////////
 
         	if (snap.val().revive === true) {
-        		alert('bring potion back to life');
+        		
         		potion.alive = true;
         		potionRef.update({alive:true});
         		potion.revive();
+
+        		potion.healthy = true;
 
         		  if (iAmPlayer === 1) {
 
@@ -489,6 +454,15 @@
 
             }
 
+            if (gameHasStarted) {
+
+		            if (potion.healthy === true) {
+
+		            	potion.loadTexture('healer', 0, false);
+
+		            }
+
+        	}
 
         
 
@@ -539,6 +513,13 @@
                     sprite.loadTexture('bigzombie', 0, false);
 
                      sprite.children[1].y = 45;
+
+                }
+
+                else if (sprite.zombie === false) {
+                	sprite.zombie = false;
+                	sprite.loadTexture('boxer', 0, false);
+                		sprite.children[1].y = 30;
 
                 }
 
@@ -748,18 +729,30 @@
                 	
                 	var pandemicRef =  database.ref("/users/").orderByChild("zombie").equalTo(true);
 
-                	var pandemicCheck;
+                	
 
-                	pandemicRef.once("value", function(response) {
+                	pandemicRef.on("value", function(response) {
 
 					  pandemicCheck = response.numChildren();
 
+					  // if (pandemicCheck < numZombies && allZombies === true) {
+					  // 	alert("POTION2");
+					  // }
+
+
+
 					  if (allZombies === false) {
 
-					 	 console.log(pandemicCheck);
+					 	// console.log(pandemicCheck);
 
 						 	 if (pandemicCheck === numZombies) {
-						 	 	reviveRef.update({revive:true})
+
+						 	 	reviveRef.update({revive:false});
+						 	 	
+						 	 	reviveRef.update({revive:true});
+
+						 	 	//revivePotion();
+
 						 	 	allZombies = true;
 						 	 }
 
@@ -773,13 +766,34 @@
 
             }
 
+            function revivePotion() {
+
+            	potion.alive = true;
+        		potionRef.update({alive:true});
+        		potion.revive();
+
+        		potion.healthy = true;
+
+        		  if (iAmPlayer === 1) {
+
+                    thisX = 20 + (Math.random() - 0.5) * 500;
+                    thisY = 20 + (Math.random() - 0.5) * 500;
+
+                    potion.body.velocity.x = thisX;
+                    potion.body.velocity.y = thisY;
+
+
+
+                }
+
+
+            }
+
             function potionTouch(potion, sprite) {
 
-            	
+            	if (potion.healthy === false) {
 
 	                console.log(sprite.ID + " has touched the potion");
-
-
 
 	                potion.kill();
 
@@ -812,10 +826,49 @@
 	                });
 
 
+            	}
+
+            	else if (potion.healthy === true) {
+
+            		console.log(sprite.ID + " has touched the medicine");
+
+	                potion.kill();
+
+	                potionRef.update({
+	                    alive: false
+	                });
+
+	                var zombieCon = database.ref("/users/" + sprite.ID);
+
+	                sprite.zombie = false;
+
+	                zombieCon.update({
+	                    zombie: false
+	                });
+
+	                zombieCon.once("value", function(snap) {
+
+	                	var checkScore = snap.val().score ;
+
+	                	checkScore = checkScore + 5000 ;
+
+	                	zombieCon.update({
+	                		score: checkScore
+	                	});
+
+	                });
+
+	                zombieRef.set({
+	                    status: false
+	                });
 
 
-            }
+	                allZombies = false;
 
+
+            	}
+
+          }  
 
         }
 
