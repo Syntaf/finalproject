@@ -132,7 +132,7 @@
 
         var rules;
 
-        var counter = 10;
+        var counter = 60;
 		var text = 0;
 
         function create() {
@@ -248,7 +248,7 @@
 
             if (snap.val().status === true) {
 
-            	text = game.add.text(game.world.centerX, 25, '60', { font: "32px Arial Black", fill: "#00ffff", align: "center" });
+            	text = game.add.text(game.world.centerX, 25, '60', { font: "40px Arial Black", fill: "#00ffff", align: "center" });
     			text.anchor.setTo(0.5, 0.5);
 
             	game.time.events.loop(Phaser.Timer.SECOND, updateCounter, this);
@@ -427,6 +427,7 @@
         		//var highestScore =  database.ref("/users/").orderByChild("score").equalTo(true);
 
         		var scoreHolder = [];
+        		var nameHolder = [];
         		var localMax = 1 ; 
         		var howMany;
 
@@ -442,7 +443,21 @@
 
         				//alert(snap.val().score)
 
-        				scoreHolder.push(snap.val().score) ;  
+        				if (snap.val().score) {
+
+        				scoreHolder.push(snap.val().score)
+
+        				} 
+
+        				else {scoreHolder.push(0)}
+
+        				if (snap.val().myname)	{
+
+        				nameHolder.push(snap.val().myname) 
+
+        				}
+
+        				else {scoreHolder.push("blank")}
 
         			});
 
@@ -460,7 +475,8 @@
 
         		//alert();
 
-        		text.setText(scoreHolder.indexOf(localMax) + " " + localMax);
+        		text.setText("Winner: " + nameHolder[scoreHolder.indexOf(localMax)] + " with $" + localMax + "!");
+        		text.y = 250;
 
         		counter = -10 ;
 
