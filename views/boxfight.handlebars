@@ -132,11 +132,16 @@
 
         var rules;
 
+        var counter = 10;
+		var text = 0;
+
         function create() {
 
             game.add.sprite(0, 0, 'grass');
             rules =  game.add.sprite(0, 0, 'instructions');
             game.input.mouse.capture = true;
+
+            
 
             cursors = this.input.keyboard.createCursorKeys();
 
@@ -147,7 +152,21 @@
 
             scoreTexts = game.add.group();
 
+            
+
         };
+
+        function updateCounter() {
+
+        	if (counter > 0 ) {
+
+		    counter = counter - 1 ; 
+
+		    text.setText(counter);
+
+			}
+
+		}
 
 
         var count = 0;
@@ -201,6 +220,11 @@
 
             });
 
+            if (iAmPlayer === 1) {
+
+            	$("#startButton").css("display", "block");
+
+        	}
 
 
             $("#joinButton").remove();
@@ -223,6 +247,11 @@
 
 
             if (snap.val().status === true) {
+
+            	text = game.add.text(game.world.centerX, 25, '60', { font: "32px Arial Black", fill: "#00ffff", align: "center" });
+    			text.anchor.setTo(0.5, 0.5);
+
+            	game.time.events.loop(Phaser.Timer.SECOND, updateCounter, this);
 
                 gameHasStarted = true;
 
@@ -358,7 +387,7 @@
 
 
 
-        for (var i = 1; i < (100); i++) {
+        for (var i = 1; i < (25); i++) {
 
             database.ref("/users/" + i).on("value", function(snap) {
 
@@ -382,7 +411,64 @@
         }
 
 
+
         function update() {
+
+        	   if (counter === 0) {
+
+        		players.forEach(function(sprite) {
+
+        			sprite.destroy();
+        			potion.destroy();
+        			
+
+        		});
+
+        		//var highestScore =  database.ref("/users/").orderByChild("score").equalTo(true);
+
+        		var scoreHolder = [];
+        		var localMax = 1 ; 
+        		var howMany;
+
+        		database.ref("/users/").on("value", function (snap) {
+
+        			howMany = snap.numChildren();
+
+        		});
+
+        		for (var i = 1; i < 25; i++) {
+
+        			database.ref("/users/" + i).on("value", function(snap) {
+
+        				//alert(snap.val().score)
+
+        				scoreHolder.push(snap.val().score) ;  
+
+        			});
+
+        			
+        		}
+
+        		for (var i = 0; i < scoreHolder.length; i++) {
+
+        			if (scoreHolder[i] > localMax) {
+
+        				localMax = scoreHolder[i] ;
+        			}
+        			
+        		}
+
+        		//alert();
+
+        		text.setText(scoreHolder.indexOf(localMax) + " " + localMax);
+
+        		counter = -10 ;
+
+
+        	}
+
+
+
 
             if (gameHasStarted === true && iAmPlayer === 1) {
 
@@ -987,6 +1073,11 @@
     canvas {
         margin-left: 20%;
 		
+    }
+
+    #startButton {
+
+    	display: none;
     }
 
 
