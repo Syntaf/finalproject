@@ -79,6 +79,7 @@
         		var nameHolder = [];
         		var localMax = 1 ; 
         		var howMany;
+        		var coleslaw;
 
     reviveRef.set({revive:false});
 
@@ -150,7 +151,7 @@
 
         var rules;
 
-        var counter = 60;
+        var counter = 10;
 		var text = 0;
 
         function create() {
@@ -520,7 +521,9 @@
 
         			if (parseInt(scoreHolder[i].slice(1, scoreHolder[i].length)) > localMax) {
 
-        				localMax = scoreHolder[i] ;
+        				coleslaw = scoreHolder[i];
+
+        				localMax = parseInt(scoreHolder[i].slice(1, scoreHolder[i].length)) ;
         			}
         			
         		}
@@ -529,7 +532,7 @@
 
 
 
-        		text.setText("Winner: " + nameHolder[scoreHolder.indexOf(localMax)] + " with " + localMax + "!");
+        		text.setText("Winner: " + nameHolder[scoreHolder.indexOf(coleslaw)] + " with $" + localMax + "!");
         		text.y = 250;
 
         		counter = -10 ;
@@ -673,9 +676,9 @@
 
                     sprite.zombie = true;
 
-                    sprite.loadTexture('bigzombie', 0, false);
+                    sprite.loadTexture('zombie', 0, false);
 
-                     sprite.children[1].y = 45;
+                    // sprite.children[1].y = 45;
 
                 }
 
