@@ -75,6 +75,11 @@
 
     var playerList;
 
+      	var scoreHolder = [];
+        		var nameHolder = [];
+        		var localMax = 1 ; 
+        		var howMany;
+
     reviveRef.set({revive:false});
 
     connectedRef.on("value", function(snap) {
@@ -145,7 +150,7 @@
 
         var rules;
 
-        var counter = 60;
+        var counter = 10;
 		var text = 0;
 
         function create() {
@@ -453,57 +458,67 @@
 
         	   if (counter === 0) {
 
+
+
+
+
+        	   	players.forEach(function(sprite) {
+
+        		nameHolder.push(sprite.children[0].text);	
+        	   	scoreHolder.push(sprite.children[1].text);
+
+        		});
+
         		players.forEach(function(sprite) {
 
-        			sprite.destroy();
-        			potion.destroy();
+        			sprite.kill();
+        			potion.kill();
         			
 
         		});
 
         		//var highestScore =  database.ref("/users/").orderByChild("score").equalTo(true);
 
-        		var scoreHolder = [];
-        		var nameHolder = [];
-        		var localMax = 1 ; 
-        		var howMany;
+        	
+        		// database.ref("/users/").on("value", function (snap) {
 
-        		database.ref("/users/").on("value", function (snap) {
+        		// 	howMany = snap.numChildren();
 
-        			howMany = snap.numChildren();
+        		// });
 
-        		});
+        		// for (var i = 1; i < 25; i++) {
 
-        		for (var i = 1; i < 25; i++) {
+        		// 	database.ref("/users/" + i).on("value", function(snap) {
 
-        			database.ref("/users/" + i).on("value", function(snap) {
+        		// 		//alert(snap.val().score)
 
-        				//alert(snap.val().score)
+        		// 		if (snap.val().score) {
 
-        				if (snap.val().score) {
+        		// 		scoreHolder.push(snap.val().score)
 
-        				scoreHolder.push(snap.val().score)
+        		// 		} 
 
-        				} 
+        		// 		else {scoreHolder.push(0)}
 
-        				else {scoreHolder.push(0)}
+        		// 		if (snap.val().myname)	{
 
-        				if (snap.val().myname)	{
+        		// 		nameHolder.push(snap.val().myname) 
 
-        				nameHolder.push(snap.val().myname) 
+        		// 		}
 
-        				}
+        		// 		else {nameHolder.push("blank")}
 
-        				else {nameHolder.push("blank")}
-
-        			});
+        		// 	});
 
         			
-        		}
+        		// }
+
+        		console.log(scoreHolder);
+        		console.log(nameHolder);
 
         		for (var i = 0; i < scoreHolder.length; i++) {
 
-        			if (scoreHolder[i] > localMax) {
+        			if (parseInt(scoreHolder[i].slice(1, scoreHolder[i].length)) > localMax) {
 
         				localMax = scoreHolder[i] ;
         			}
@@ -512,7 +527,9 @@
 
         		//alert();
 
-        		text.setText("Winner: " + nameHolder[scoreHolder.indexOf(localMax)] + " with $" + localMax + "!");
+
+
+        		text.setText("Winner: " + nameHolder[scoreHolder.indexOf(localMax)] + " with " + localMax + "!");
         		text.y = 250;
 
         		counter = -10 ;
@@ -975,7 +992,15 @@
 
             function potionTouch(potion, sprite) {
 
-            	if (potion.healthy === false) {
+            	var isItAlive;
+
+            	potionRef.on("value", function(res) {
+
+            		isItAlive = res.val().alive
+
+            	});
+
+            	if (potion.healthy === false && isItAlive === true) {
 
 	                console.log(sprite.ID + " has touched the potion");
 
@@ -1012,7 +1037,7 @@
 
             	}
 
-            	else if (potion.healthy === true) {
+            	else if (potion.healthy === true && isItAlive === true) {
 
             		console.log(sprite.ID + " has touched the medicine");
 
