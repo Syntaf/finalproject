@@ -11,7 +11,9 @@ router.get("/", function(req, res) {
 
     res.render("boxfight");
   
-});router.get("/demo", function(req, res) {
+});
+
+router.get("/demo", function(req, res) {
 
     res.render("index");
   
