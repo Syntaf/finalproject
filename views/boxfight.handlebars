@@ -145,7 +145,7 @@
 
         var rules;
 
-        var counter = 60;
+        var counter = 10;
 		var text = 0;
 
         function create() {
@@ -517,6 +517,13 @@
 
         		counter = -10 ;
 
+        		$("#thebuttons").html('<button id="replayButton">Play Again?</button>')
+
+        		$("#replayButton").on("click", function() {
+
+        			location.reload();
+
+        		});
 
         	}
 
@@ -1077,6 +1084,8 @@
 <h1 id="alert">Z O M B O X </h1>
 <h2 id = "watermark">by juan debiedma </h2>
 
+
+
 <h6 id="conref"> </h6>
 
 <div id = "thebuttons">
@@ -1176,6 +1185,7 @@
     	display: none;
     	margin-left: 15%
     }
+
 
 
     #alert {
