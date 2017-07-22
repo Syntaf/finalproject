@@ -96,6 +96,17 @@
 
     window.onload = function() {
 
+    	$("#slideshow > div:gt(0)").hide();
+
+		setInterval(function() { 
+		  $('#slideshow > div:first')
+		    .fadeOut(1000)
+		    .next()
+		    .fadeIn(1000)
+		    .end()
+		    .appendTo('#slideshow');
+		},  3500);
+
 
         var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
             preload: preload,
@@ -228,6 +239,12 @@
 
         	}
 
+        	else {
+
+        		$("#alert").text("waiting on players...");
+        		$("#watermark").remove();
+        	}
+
 
             $("#joinButton").remove();
             $("#nameInput").remove();
@@ -266,7 +283,7 @@
 
 				        $(".hello").attr('style', 'display: block !important');
  
-            	
+            			$("#slideshow").remove();
 
             	text = game.add.text(game.world.centerX, 25, '60', { font: "40px Arial Black", fill: "#00ffff", align: "center" });
     			text.anchor.setTo(0.5, 0.5);
@@ -1071,13 +1088,36 @@
 
 </div>
 
+<div id="slideshow">
+	<div>
+     <img src="http://i.imgur.com/WVCfXao.png">
+   </div>
+   <div>
+     <img src="http://i.imgur.com/7lG31ei.png">
+   </div>
+   <div>
+     <img src="http://i.imgur.com/shTKbwy.png">
+   </div>
+  <div>
+     <img src="http://i.imgur.com/P5I5KW1.png">
+   </div>
+   <div>
+     <img src="http://i.imgur.com/H2ooSvx.png">
+   </div>
+   
+</div>
+
+
+
+
 
 <style>
     h1 {
         font-family: 'VT323', cursive;
-        font-size: 50px;
+        font-size: 100px;
         margin-top: -10px;
         padding: 0px;
+        margin-bottom: 32px;
         height: 64px;
     }
 
@@ -1091,20 +1131,38 @@
     }
 
     body {
-        background-color: cadetblue;
+        background: linear-gradient(284deg, #1a72c5, #4c9c23);
+		background-size: 400% 400%;
+
+		-webkit-animation: AnimationName 9s ease infinite;
+		animation: AnimationName 9s ease infinite;
     }
+
+	    @-webkit-keyframes AnimationName {
+	    0%{background-position:0% 50%}
+	    50%{background-position:100% 50%}
+	    100%{background-position:0% 50%}
+	}
+
+	@keyframes AnimationName { 
+	    0%{background-position:0% 50%}
+	    50%{background-position:100% 50%}
+	    100%{background-position:0% 50%}
+	}
+
 
     h6 {
         color: blue;
         font-size: 15px;
         font-weight: bold;
-        text-align: center
+        text-align: center;
+        padding-top: 5px;
    
     }
 
     #thebuttons {
 
-    	margin-left: 30%;
+    	margin-left: 35%;
     	margin-top: 35px;
     }
 
@@ -1116,6 +1174,7 @@
     #startButton {
 
     	display: none;
+    	margin-left: 15%
     }
 
 
@@ -1148,4 +1207,21 @@
         -webkit-animation-name: colours;
         -webkit-animation-timing-function: ease;
     }
+
+    #slideshow { 
+    margin: 50px auto; 
+    position: relative; 
+    width: 720px; 
+    height: 137px; 
+    padding: 10px; 
+    box-shadow: 0 0 20px rgba(0,0,0,0.4); 
+}
+
+#slideshow > div { 
+    position: absolute; 
+    top: 10px; 
+    left: 10px; 
+    right: 10px; 
+    bottom: 10px; 
+}
 </style>
